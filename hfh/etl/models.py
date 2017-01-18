@@ -7,38 +7,50 @@ Base = mgmt.Base
 CXN = mgmt.cfg.get('DB', 'CXN')
 session = mgmt.Session()
 engine = mgmt.engine
+SCHEMA = mgmt.cfg.get('DB', 'SCHEMA')
+
 
 class RawSurvey(Base):
-    __table__ = Table('raw_survey', Base.metadata,
+    __table__ = Table(
+        'raw_survey', Base.metadata,
         Column('uu_id', String(), primary_key=True),
         Column('form_id', String()),
         Column('date_added', Date()),
         Column('content', String()),
-        schema = 'raw')
+        schema='raw')
+
 
 class RawNode(Base):
-    __table__ = Table('raw_node', Base.metadata,
+    __table__ = Table(
+        'raw_node', Base.metadata,
         Column('id', String(), primary_key=True),
         Column('date_added', Date()),
         Column('content', String()),
-        schema = 'raw')
+        schema='raw')
+
 
 class RawWay(Base):
-    __table__ = Table('raw_way', Base.metadata,
+    __table__ = Table(
+        'raw_way', Base.metadata,
         Column('id', String(), primary_key=True),
         Column('date_added', Date()),
         Column('content', String()),
-        schema = 'raw')
+        schema='raw')
 
 
 def create():
-    if not session.query(exists(select([("schema_name")]).select_from("information_schema.schemata")\
-                                        .where("schema_name = 'surveys'"))).scalar():
-        engine.execute(CreateSchema('surveys'))
+    if not session.query(
+            exists(
+                select([("schema_name")])
+                .select_from("information_schema.schemata")
+                .where("schema_name = SCHEMA"))).scalar():
+        engine.execute(CreateSchema(SCHEMA))
 
-    if not session.query(exists(select([("schema_name")]).select_from("information_schema.schemata")\
-                                        .where("schema_name = 'raw'"))).scalar():
+    if not session.query(
+            exists(
+                select([("schema_name")])
+                .select_from("information_schema.schemata")
+                .where("schema_name = 'raw'"))).scalar():
         engine.execute(CreateSchema('raw'))
-
 
     Base.metadata.create_all(engine)

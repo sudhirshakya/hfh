@@ -52,6 +52,7 @@ Before you can run the script, you have to specify some values in `config.ini` w
     
     [DB]
     CXN: A full connection string to the database and schema where your data will be stored
+    SCHEMA: SCHEMA to be used for storing tables
     
     HH_ID_COL: Name of your beneficiary ID column in the survey data. This can be a nested answer so make sure you include the full qualifier. For instance, if you have a section called 'General Info' and your question is labeled 'Registration Number', the value would be general_info_registration_number
     

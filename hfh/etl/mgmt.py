@@ -1,6 +1,6 @@
 import ConfigParser
 import logging
-from logging.config import fileConfig
+from logging.config import fileConfig as logging_fileConfig
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,10 +10,11 @@ cfg = ConfigParser.ConfigParser()
 cfg.read('./config.ini')
 
 # FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
-# logging.basicConfig(filename='example.log',level=logging.DEBUG, format = FORMAT)
-#logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
+# logging.basicConfig(filename='example.log',
+#                     level=logging.DEBUG, format = FORMAT)
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
-logging.config.fileConfig('./log.ini')
+logging_fileConfig('./log.ini')
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
