@@ -61,6 +61,11 @@ Before you can run the script, you have to specify some values in `config.ini` w
     [OSM]
     WAY_COL: The prefix that of columns added to your table that contain OSM data. Default is geometry_coordinates
 
+    [S3_BUCKET]
+    S3_KEY: s3 access key
+    S3_SECRET:s3 private key 
+    S3_BUCKET_NAME: bucket name
+
 **What exactly does it do?**
 
 You start by collecting mobile surveys and then uploading them to the OMK server. Once you have done this, create the necessary database schema and  execute the following found in `hfh/etl/`:
