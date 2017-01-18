@@ -9,14 +9,18 @@ from itertools import groupby
 from sqlalchemy import Column, String, MetaData, Table, Sequence, Integer
 # from sqlalchemy.ext.declarative import declarative_base
 
-import mgmt
 from models import RawSurvey
+import s3_bucket
+import mgmt
+import glob
+import os
 
 logger = mgmt.logger
 session = mgmt.Session()
 engine = mgmt.engine
 Base = mgmt.Base
 SCHEMA = mgmt.cfg.get('DB', 'SCHEMA')
+DEST_LOC = mgmt.cfg.get('AWS', 'DEST_LOC')
 metadata = MetaData(bind=engine, schema=SCHEMA)
 
 COORD_COL = mgmt.cfg.get('OSM', 'WAY_COL')
@@ -180,7 +184,7 @@ def update_valz(idcol, indict, survey_name):
                 continue
 
 
-def _insert_new_valz(cont, survey_name):
+def _insert_new_valz(cont, survey_name, upload=False):
     """check to see if we have new entries and add data
         cont is a list containing dicts of values to
         insert [{col1: val1 etc} ... {col1: valx}]"""
@@ -199,6 +203,29 @@ def _insert_new_valz(cont, survey_name):
                     v = {k: str(v) for k, v in v.iteritems()}
                     ins = Temp.__table__.insert()
                     connection.execute(ins, [v])
+                    if upload:
+                        # Upload Photo To Amazon Bucket
+                        if v.get('image_house'):
+                            # Upload image from .json data
+                            image_loc = os.path.join(
+                                    DEST_LOC, survey_name,
+                                    v['meta_instanceId'].replace('uuid:', ''),
+                                    v['image_house'])
+                            key_loc = os.path.join(survey_name,
+                                                   v['image_house'])
+                            s3_bucket.upload(image_loc, key_loc)
+                        else:
+                            # If key value for image not found in .json data
+                            # Upload all the file from that dir
+                            images = glob.glob(os.path.join(
+                                    DEST_LOC, survey_name,
+                                    v['meta_instanceId'].replace('uuid:', ''),
+                                    '*.jpg'))
+                            for image in images:
+                                image_loc = image
+                                key_loc = os.path.join(survey_name,
+                                                       image.split('/')[-1])
+                                s3_bucket.upload(image_loc, key_loc)
 
             except Exception:
                 raise
@@ -221,5 +248,5 @@ def store(cont, survey_name):
     logger.info('Creating table for %s' % survey_name)
     _create_table(cont, survey_name)
 
-    _insert_new_valz(cont, survey_name)
+    _insert_new_valz(cont, survey_name, upload=True)
     engine.dispose()
