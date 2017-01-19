@@ -204,28 +204,33 @@ def _insert_new_valz(cont, survey_name, upload=False):
                     ins = Temp.__table__.insert()
                     connection.execute(ins, [v])
                     if upload:
-                        # Upload Photo To Amazon Bucket
-                        if v.get('image_house'):
-                            # Upload image from .json data
-                            image_loc = os.path.join(
+                        try:
+                            # Upload Photo To Amazon Bucket
+                            if v.get('image_house'):
+                                # Upload image from .json data
+                                image_loc = os.path.join(
                                     DEST_LOC, survey_name,
                                     v['meta_instanceId'].replace('uuid:', ''),
                                     v['image_house'])
-                            key_loc = os.path.join(survey_name,
-                                                   v['image_house'])
-                            s3_bucket.upload(image_loc, key_loc)
-                        else:
-                            # If key value for image not found in .json data
-                            # Upload all the file from that dir
-                            images = glob.glob(os.path.join(
+                                key_loc = os.path.join(survey_name,
+                                                       v['image_house'])
+                                s3_bucket.upload(image_loc, key_loc)
+                            else:
+                                # If key value for image not found
+                                # in .json data
+                                # Upload all the file from that dir
+                                images = glob.glob(os.path.join(
                                     DEST_LOC, survey_name,
                                     v['meta_instanceId'].replace('uuid:', ''),
                                     '*.jpg'))
-                            for image in images:
-                                image_loc = image
-                                key_loc = os.path.join(survey_name,
-                                                       image.split('/')[-1])
-                                s3_bucket.upload(image_loc, key_loc)
+                                for image in images:
+                                    image_loc = image
+                                    key_loc = os.path.join(
+                                            survey_name,
+                                            image.split('/')[-1])
+                                    s3_bucket.upload(image_loc, key_loc)
+                        except IOError:
+                            pass
 
             except Exception:
                 raise
