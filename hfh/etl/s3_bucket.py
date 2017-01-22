@@ -46,7 +46,7 @@ def upload_image(image, upload_key):
     im.save(out_im, 'jpeg', optimize=True, progressive=True)
 
     thumbnail_size = (128, 128)
-    im.thumbnail(thumbnail_size)
+    im.thumbnail(thumbnail_size, Image.ANTIALIAS)
     im.save(out_im_thumbnail, 'jpeg', progressive=True)
 
     # file pointer to beginning
