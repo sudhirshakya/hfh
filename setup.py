@@ -14,6 +14,7 @@ setup(
         'sqlalchemy',
         'overpass',
         'click',
-        'qrcode'
+        'qrcode',
+        'Pillow'
     ],
 )
