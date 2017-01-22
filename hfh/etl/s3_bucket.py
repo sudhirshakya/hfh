@@ -1,6 +1,8 @@
 import boto3
 import botocore
 import mgmt
+from PIL import Image
+from io import BytesIO
 
 cfg = mgmt.cfg
 logger = mgmt.logger
@@ -22,11 +24,35 @@ def upload(file_from, file_to,
            contenttype='image',
            acl='public-read'):
     try:
-        data = open(file_from, 'rb')
+        data = open(file_from, 'rb')\
+                if not isinstance(file_from, BytesIO) else file_from
+        file_from = file_from if not isinstance(file_from, BytesIO) else 'Img'
         bucket.put_object(Key=file_to,
                           Body=data,
                           ContentType=contenttype,
                           ACL=acl)
         logger.info('file: '+file_from+'\t upload to: '+file_to)
-    except botocore.exceptions.ClientError:
-        logger.warn('Uploaded Failed: '+file_from+'\t to: '+file_to)
+    except botocore.exceptions.ClientError as e:
+        logger.error(e)
+        logger.error('Uploaded Failed: '+file_from+'\t to: '+file_to)
+
+
+def upload_image(image, upload_key):
+    im = Image.open(image)
+
+    out_im = BytesIO()
+    out_im_thumbnail = BytesIO()
+
+    im.save(out_im, 'jpeg', optimize=True, progressive=True)
+
+    thumbnail_size = (128, 128)
+    im.thumbnail(thumbnail_size)
+    im.save(out_im_thumbnail, 'jpeg', progressive=True)
+
+    # file pointer to beginning
+    out_im.seek(0)
+    out_im_thumbnail.seek(0)
+    # Upload Thumbnail
+    upload(out_im_thumbnail, 'thumbnail/'+upload_key)
+    # Upload Original
+    upload(out_im, upload_key)

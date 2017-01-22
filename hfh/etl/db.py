@@ -214,7 +214,7 @@ def _insert_new_valz(cont, survey_name, upload=False):
                                     v['image_house'])
                                 key_loc = os.path.join(survey_name,
                                                        v['image_house'])
-                                s3_bucket.upload(image_loc, key_loc)
+                                s3_bucket.upload_image(image_loc, key_loc)
                             else:
                                 # If key value for image not found
                                 # in .json data
@@ -228,9 +228,10 @@ def _insert_new_valz(cont, survey_name, upload=False):
                                     key_loc = os.path.join(
                                             survey_name,
                                             image.split('/')[-1])
-                                    s3_bucket.upload(image_loc, key_loc)
+                                    s3_bucket.upload_image(image_loc, key_loc)
                         except IOError:
-                            pass
+                            logger.error('Image Not Found: ', survey_name,
+                                         ': ', v['meta_instanceId'])
 
             except Exception:
                 raise
