@@ -1,3 +1,4 @@
+from __future__ import division
 import boto3
 import botocore
 import mgmt
@@ -37,17 +38,37 @@ def upload(file_from, file_to,
         logger.error('Uploaded Failed: '+file_from+'\t to: '+file_to)
 
 
+def resize(im, max_height=128):
+    # Original Size
+    w, h = im.size
+
+    # New width with original ratio
+    w = int((w/h)*max_height)
+    h = max_height
+
+    # New size with given max height and original ratio
+    new_size = (w, h)
+    print(new_size)
+
+    return im.resize(new_size)
+
+
 def upload_image(image, upload_key):
     im = Image.open(image)
 
     out_im = BytesIO()
     out_im_thumbnail = BytesIO()
 
+    # Original Image Uploaded
     im.save(out_im, 'jpeg', optimize=True, progressive=True)
 
-    thumbnail_size = (128, 128)
-    im.thumbnail(thumbnail_size, Image.ANTIALIAS)
-    im.save(out_im_thumbnail, 'jpeg', progressive=True)
+    # thumbnail_size = (128, 128)
+    # im.thumbnail(thumbnail_size, Image.ANTIALIAS)
+    im_th = resize(im)
+
+    # Resized thumbnail Image Uploaded
+    # im.save(out_im_thumbnail, 'jpeg', progressive=True)
+    im_th.save(out_im_thumbnail, 'jpeg', progressive=True)
 
     # file pointer to beginning
     out_im.seek(0)

@@ -12,7 +12,7 @@ from sqlalchemy import Column, String, MetaData, Table, Sequence, Integer
 from models import RawSurvey
 import s3_bucket
 import mgmt
-import glob
+# import glob
 import os
 
 logger = mgmt.logger
@@ -216,9 +216,12 @@ def _insert_new_valz(cont, survey_name, upload=False):
                                                        v['image_house'])
                                 s3_bucket.upload_image(image_loc, key_loc)
                             else:
+                                pass
+                                """
                                 # If key value for image not found
                                 # in .json data
                                 # Upload all the file from that dir
+                                # Change this portion as needed
                                 images = glob.glob(os.path.join(
                                     DEST_LOC, survey_name,
                                     v['meta_instanceId'].replace('uuid:', ''),
@@ -229,6 +232,7 @@ def _insert_new_valz(cont, survey_name, upload=False):
                                             survey_name,
                                             image.split('/')[-1])
                                     s3_bucket.upload_image(image_loc, key_loc)
+                                """
                         except IOError:
                             logger.error('Image Not Found: ', survey_name,
                                          ': ', v['meta_instanceId'])
